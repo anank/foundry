@@ -1,0 +1,27 @@
+<div class="px-4 py-4 space-y-4 text-sm">
+
+  <!-- Full reasoning -->
+  <div>
+    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Reasoning</h4>
+    <p class="text-gray-300 whitespace-pre-wrap">{{ entry.reasoning or "No reasoning recorded." }}</p>
+  </div>
+
+  {% if entry.get("park_revival_condition") %}
+  <div>
+    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Revival Condition</h4>
+    <p class="text-gray-300">{{ entry.park_revival_condition }}</p>
+  </div>
+  {% endif %}
+
+  {% if entry.get("related_killed_ideas") %}
+  <div>
+    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Related Killed Ideas</h4>
+    <ul class="list-disc list-inside text-gray-400 text-xs space-y-0.5">
+      {% for related in entry.related_killed_ideas %}
+      <li>{{ related }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+</div>

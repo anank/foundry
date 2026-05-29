@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Pipeline — Foundry{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-semibold text-white">Pipeline</h1>
+  <p class="mt-1 text-sm text-gray-400">Projects grouped by current status.</p>
+</div>
+
+<!-- Kanban grid: stacks vertically on mobile, 4 columns on desktop -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+  {% for col in columns %}
+  <div class="flex flex-col gap-3">
+
+    <!-- Column header -->
+    <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-900 border border-gray-800">
+      <span class="text-sm font-semibold text-gray-200 uppercase tracking-wide">
+        {{ col.label }}
+      </span>
+      <span class="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-1.5 rounded-full
+                   text-xs font-medium
+                   {% if col.projects %}bg-indigo-600 text-white{% else %}bg-gray-800 text-gray-500{% endif %}">
+        {{ col.projects | length }}
+      </span>
+    </div>
+
+    <!-- Project cards -->
+    {% if col.projects %}
+      {% for project in col.projects %}
+      <a href="/projects/{{ project.name }}"
+         class="block rounded-lg bg-gray-900 border border-gray-800
+                hover:border-indigo-600 hover:bg-gray-800
+                transition-colors p-3 group">
+        <div class="text-sm font-medium text-gray-100 group-hover:text-white truncate">
+          {{ project.name }}
+        </div>
+        {% if project.description %}
+        <div class="mt-1 text-xs text-gray-500 line-clamp-2 leading-relaxed">
+          {{ project.description[:120] }}{% if project.description | length > 120 %}…{% endif %}
+        </div>
+        {% endif %}
+      </a>
+      {% endfor %}
+    {% else %}
+      <!-- Empty column placeholder -->
+      <div class="rounded-lg border border-dashed border-gray-800 px-3 py-6 text-center">
+        <span class="text-xs text-gray-600">Empty</span>
+      </div>
+    {% endif %}
+
+  </div>
+  {% endfor %}
+
+</div>
+{% endblock %}

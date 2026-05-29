@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }} — Foundry{% endblock %}
+{% block content %}
+
+<!-- Header -->
+<div style="margin-bottom:2rem;" class="animate-in">
+  <a href="/projects" style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#4a5568;text-decoration:none;text-transform:uppercase;letter-spacing:0.06em;"
+     onmouseover="this.style.color='#f0a500'" onmouseout="this.style.color='#4a5568'">← Projects</a>
+  <div style="display:flex;align-items:center;gap:1rem;margin-top:0.75rem;flex-wrap:wrap;">
+    <h1 class="page-title" style="font-family:'IBM Plex Mono',monospace;font-size:1.3rem;">{{ project.name }}</h1>
+    {% set status = project.status | lower %}
+    <span class="badge badge--{{ status }}">{{ status }}</span>
+    <span class="badge badge--{{ project.priority }}">{{ project.priority }}</span>
+    {% if project.github_url %}
+    <a href="{{ project.github_url }}" target="_blank"
+       style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#f0a500;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;"
+       onmouseover="this.style.color='#ffc107'" onmouseout="this.style.color='#f0a500'">
+      ↗ github
+    </a>
+    {% endif %}
+  </div>
+  {% if project.description %}
+  <p style="font-size:0.85rem;color:#8899aa;margin-top:0.4rem;">{{ project.description }}</p>
+  {% endif %}
+</div>
+
+<!-- Tabs -->
+<div class="tab-bar" style="margin-bottom:1.5rem;">
+  <button class="tab active" onclick="switchTab('tasks')"   id="tab-tasks">Tasks</button>
+  <button class="tab"        onclick="switchTab('spec')"    id="tab-spec">Spec</button>
+  <button class="tab"        onclick="switchTab('commits')" id="tab-commits">Commits</button>
+  <button class="tab"        onclick="switchTab('runs')"    id="tab-runs">Run Logs</button>
+  <button class="tab"        onclick="switchTab('paths')"   id="tab-paths">Devices</button>
+</div>
+
+<!-- Tasks panel -->
+<div id="panel-tasks">
+  <form hx-post="/projects/{{ project.name }}/tasks"
+        hx-target="#task-list" hx-swap="outerHTML"
+        style="display:flex;gap:0.5rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <input name="title" required placeholder="New task title…"
+      class="input" style="flex:1;min-width:200px;" />
+    <select name="priority" class="input" style="width:120px;">
+      <option value="high">high</option>
+      <option value="medium" selected>medium</option>
+      <option value="low">low</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Add</button>
+  </form>
+  {% include "partials/task_list.html" %}
+</div>
+
+<!-- Spec panel -->
+<div id="panel-spec" style="display:none;">
+  <form method="post" action="/projects/{{ project.name }}/edit" style="display:flex;flex-direction:column;gap:1rem;">
+    <textarea name="spec" rows="20"
+      class="input input-mono" style="min-height:400px;line-height:1.6;">{{ project.spec or '' }}</textarea>
+    <input type="hidden" name="description" value="{{ project.description or '' }}" />
+    <input type="hidden" name="github_url" value="{{ project.github_url or '' }}" />
+    <input type="hidden" name="status" value="{{ project.status or 'active' }}" />
+    <input type="hidden" name="priority" value="{{ project.priority or 'medium' }}" />
+    <div><button type="submit" class="btn btn-primary">Save Spec</button></div>
+  </form>
+</div>
+
+<!-- Commits panel -->
+<div id="panel-commits" style="display:none;">
+  {% if not project.github_url %}
+  <div class="empty-state">
+    <p>No GitHub URL configured.</p>
+    <p><a href="#" onclick="switchTab('spec');return false;" style="color:#f0a500;font-family:'IBM Plex Mono',monospace;font-size:0.75rem;">add one in spec tab →</a></p>
+  </div>
+  {% elif not commits %}
+  <div class="empty-state"><p>No commits found or GitHub API unavailable.</p></div>
+  {% else %}
+  <div class="card" style="overflow:hidden;">
+    {% for c in commits %}
+    <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.75rem 1.25rem;border-bottom:1px solid #1e2d3d;{% if loop.last %}border-bottom:none;{% endif %}">
+      <a href="{{ c.url }}" target="_blank" class="commit-sha" style="flex-shrink:0;margin-top:0.1rem;">{{ c.sha }}</a>
+      <div style="flex:1;min-width:0;">
+        <p style="font-size:0.85rem;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.message }}</p>
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a5568;margin-top:0.2rem;">{{ c.author }} · {{ c.date }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- Run logs panel -->
+<div id="panel-runs" style="display:none;">
+  {% if not runs %}
+  <div class="empty-state"><p>No runs yet.</p></div>
+  {% else %}
+  <div style="display:flex;flex-direction:column;gap:0.5rem;">
+    {% for r in runs %}
+    <div class="card card--{{ r.status }}" style="padding:1rem 1.25rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <div>
+          <p style="font-weight:500;font-size:0.875rem;color:#e2e8f0;">{{ r.task_title }}</p>
+          <p style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#4a5568;margin-top:0.2rem;">
+            {{ r.device_name }} · {{ r.started_at[:16] }}
+          </p>
+          {% if r.log_path %}
+          <p style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#2a3f55;margin-top:0.2rem;">{{ r.log_path }}</p>
+          {% endif %}
+        </div>
+        <span class="badge badge--{{ r.status }}">{{ r.status }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- Device paths panel -->
+<div id="panel-paths" style="display:none;">
+  <div id="device-paths-panel">
+    {% include "partials/device_paths.html" %}
+  </div>
+</div>
+
+<script>
+function switchTab(name) {
+  ['tasks','spec','commits','runs','paths'].forEach(function(t) {
+    document.getElementById('panel-' + t).style.display = (t === name) ? '' : 'none';
+    var btn = document.getElementById('tab-' + t);
+    if (btn) btn.classList.toggle('active', t === name);
+  });
+}
+</script>
+
+{% endblock %}

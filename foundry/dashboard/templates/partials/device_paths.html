@@ -1,0 +1,77 @@
+<!-- partials/device_paths.html -->
+
+<!-- Default device selector -->
+<div style="margin-bottom:1.25rem;">
+  <div class="section-label" style="margin-bottom:0.75rem;">Default Device</div>
+  <form hx-post="/projects/{{ project.name }}/default-device"
+        hx-target="#device-paths-panel" hx-swap="innerHTML"
+        style="display:flex;gap:0.5rem;align-items:center;">
+    <select name="device_pk" class="input" style="width:200px;">
+      <option value="0">— none —</option>
+      {% for d in all_devices %}
+      <option value="{{ d.id }}" {% if project.default_device_id == d.id %}selected{% endif %}>
+        {{ d.display_name }}
+      </option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-ghost" style="font-size:0.7rem;">Set Default</button>
+    {% if project.default_device_id %}
+    {% for d in all_devices %}{% if d.id == project.default_device_id %}
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#22c55e;">✓ {{ d.display_name }}</span>
+    {% endif %}{% endfor %}
+    {% endif %}
+  </form>
+  <p style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a5568;margin-top:0.4rem;">
+    Used by Run buttons on home cards and the cron API when no device is specified.
+  </p>
+</div>
+
+<div class="glow-sep"></div>
+
+<!-- Configured paths -->
+<div class="section-label" style="margin-bottom:0.75rem;">Local Paths</div>
+{% if device_paths %}
+<div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1.25rem;">
+  {% for dp in device_paths %}
+  <div style="display:flex;align-items:center;gap:0.75rem;background:#080b0f;border:1px solid #1e2d3d;
+    {% if project.default_device_id == dp.device_pk %}border-left:3px solid #22c55e;{% endif %}
+    border-radius:4px;padding:0.6rem 0.875rem;">
+    <span style="font-weight:500;font-size:0.85rem;color:#e2e8f0;width:120px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+      {{ dp.display_name }}
+      {% if project.default_device_id == dp.device_pk %}
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#22c55e;margin-left:0.3rem;">default</span>
+      {% endif %}
+    </span>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:#f0a500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ dp.local_path }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div style="background:#080b0f;border:1px dashed #1e2d3d;border-radius:4px;padding:1rem;text-align:center;margin-bottom:1.25rem;">
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:#4a5568;">no device paths configured</span>
+</div>
+{% endif %}
+
+<div class="glow-sep"></div>
+
+<!-- Add path form -->
+<div class="section-label" style="margin-bottom:0.75rem;">Add Path</div>
+<form hx-post="/projects/{{ project.name }}/paths"
+      hx-target="#device-paths-panel" hx-swap="innerHTML"
+      style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:flex-end;">
+  <div style="flex-shrink:0;">
+    <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#4a5568;margin-bottom:0.3rem;">Device</label>
+    <select name="device_pk" required class="input" style="width:160px;">
+      <option value="">Select device…</option>
+      {% for d in all_devices %}
+      <option value="{{ d.id }}">{{ d.display_name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div style="flex:1;min-width:200px;">
+    <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#4a5568;margin-bottom:0.3rem;">Local Path</label>
+    <input name="local_path" required placeholder="/home/user/project"
+      class="input input-mono" />
+  </div>
+  <button type="submit" class="btn btn-primary" style="flex-shrink:0;">Save Path</button>
+</form>

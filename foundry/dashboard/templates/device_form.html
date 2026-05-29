@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{% if device %}Edit Device{% else %}Add Device{% endif %} — Foundry{% endblock %}
+{% block content %}
+
+<div style="max-width:560px;" class="animate-in">
+  <div style="margin-bottom:2rem;">
+    <a href="/devices" style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#4a5568;text-decoration:none;text-transform:uppercase;letter-spacing:0.06em;"
+       onmouseover="this.style.color='#f0a500'" onmouseout="this.style.color='#4a5568'">← Devices</a>
+    <h1 class="page-title" style="margin-top:0.75rem;">{% if device %}Edit Device{% else %}Add Device{% endif %}</h1>
+  </div>
+
+  <form method="post" action="{% if device %}/devices/{{ device.id }}/edit{% else %}/devices/new{% endif %}"
+        style="display:flex;flex-direction:column;gap:1.25rem;">
+
+    <div class="card" style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;">
+      <div class="section-label">Identity</div>
+
+      <div>
+        <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:#8899aa;margin-bottom:0.4rem;">
+          Device ID <span style="color:#ef4444;">*</span>
+        </label>
+        <input name="device_id" required value="{{ device.device_id if device else '' }}"
+          placeholder="my-macbook" class="input input-mono" />
+        <p style="font-size:0.7rem;color:#4a5568;margin-top:0.3rem;font-family:'IBM Plex Mono',monospace;">
+          must match <span style="color:#f0a500;">FOUNDRY_DEVICE_ID</span> env var on that machine
+        </p>
+      </div>
+
+      <div>
+        <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:#8899aa;margin-bottom:0.4rem;">
+          Display Name <span style="color:#ef4444;">*</span>
+        </label>
+        <input name="display_name" required value="{{ device.display_name if device else '' }}"
+          placeholder="My MacBook" class="input" />
+      </div>
+
+      <div>
+        <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:#8899aa;margin-bottom:0.4rem;">OS</label>
+        <select name="os" class="input">
+          <option value="linux"   {% if device and device.os == 'linux'   %}selected{% endif %}>linux</option>
+          <option value="macos"   {% if device and device.os == 'macos'   %}selected{% endif %}>macos</option>
+          <option value="windows" {% if device and device.os == 'windows' %}selected{% endif %}>windows</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card" style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;">
+      <div class="section-label">SSH Connection <span style="font-size:0.6rem;color:#4a5568;text-transform:none;letter-spacing:0;font-family:'IBM Plex Sans',sans-serif;">(leave blank for local-only)</span></div>
+
+      <div style="display:grid;grid-template-columns:1fr auto;gap:0.75rem;">
+        <div>
+          <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:#8899aa;margin-bottom:0.4rem;">Host</label>
+          <input name="ssh_host" value="{{ device.ssh_host if device else '' }}"
+            placeholder="192.168.1.10" class="input input-mono" />
+        </div>
+        <div style="width:90px;">
+          <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:#8899aa;margin-bottom:0.4rem;">Port</label>
+          <input name="ssh_port" type="number" value="{{ device.ssh_port if device else 22 }}"
+            class="input input-mono" />
+        </div>
+      </div>
+
+      <div>
+        <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:#8899aa;margin-bottom:0.4rem;">User</label>
+        <input name="ssh_user" value="{{ device.ssh_user if device else '' }}"
+          placeholder="ubuntu" class="input input-mono" />
+      </div>
+    </div>
+
+    <div class="card" style="padding:1.5rem;">
+      <div class="section-label" style="margin-bottom:0.75rem;">Notes</div>
+      <textarea name="notes" rows="3" class="input">{{ device.notes if device else '' }}</textarea>
+    </div>
+
+    <div style="display:flex;gap:0.75rem;">
+      <button type="submit" class="btn btn-primary">{% if device %}Save Changes{% else %}Add Device{% endif %}</button>
+      <a href="/devices" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

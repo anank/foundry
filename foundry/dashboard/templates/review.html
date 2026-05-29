@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Review Queue — Foundry{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;" class="animate-in">
+  <div>
+    <div class="section-label" style="margin-bottom:0.4rem;">Awaiting Decision</div>
+    <h1 class="page-title">Review Queue</h1>
+  </div>
+  {% if tasks %}
+  <span class="badge badge--review">{{ tasks|length }} pending</span>
+  {% endif %}
+</div>
+
+{% if not tasks %}
+<div class="empty-state animate-in">
+  <svg width="40" height="40" fill="none" stroke="#1e2d3d" viewBox="0 0 24 24" style="margin-bottom:1rem;">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+  </svg>
+  <p>Review queue is empty.</p>
+  <p style="font-size:0.75rem;color:#4a5568;margin-top:0.25rem;">Tasks with status <code style="font-family:'IBM Plex Mono',monospace;color:#a855f7;">review</code> appear here.</p>
+</div>
+{% else %}
+<div style="display:flex;flex-direction:column;gap:0.75rem;" id="review-list">
+  {% for task in tasks %}
+  <div id="card-{{ task.id }}"
+       class="card card--review animate-in animate-in-delay-{{ loop.index if loop.index <= 4 else 4 }}"
+       style="padding:1.25rem;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+      <div>
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a5568;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">
+          {{ task.project_name }}
+        </p>
+        <h2 style="font-size:0.95rem;font-weight:600;color:#e2e8f0;">{{ task.title }}</h2>
+        {% if task.description %}
+        <p style="font-size:0.8rem;color:#8899aa;margin-top:0.3rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+          {{ task.description }}
+        </p>
+        {% endif %}
+      </div>
+      <span class="badge badge--review" style="flex-shrink:0;">review</span>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+      <button hx-post="/review/{{ task.id }}/approve"
+              hx-target="#card-{{ task.id }}" hx-swap="outerHTML"
+              class="btn btn-approve">✓ Approve</button>
+      <button hx-post="/review/{{ task.id }}/reject"
+              hx-target="#card-{{ task.id }}" hx-swap="outerHTML"
+              class="btn btn-reject">✕ Reject</button>
+      <button type="button"
+              onclick="document.getElementById('revise-{{ task.id }}').classList.toggle('hidden')"
+              class="btn btn-revise">↩ Revise</button>
+    </div>
+
+    <div id="revise-{{ task.id }}" class="hidden" style="margin-top:1rem;padding-top:1rem;border-top:1px solid #1e2d3d;">
+      <form hx-post="/review/{{ task.id }}/revise"
+            hx-target="#card-{{ task.id }}" hx-swap="outerHTML"
+            style="display:flex;flex-direction:column;gap:0.75rem;">
+        <textarea name="notes" rows="3" placeholder="What needs to change…"
+          class="input" style="resize:none;"></textarea>
+        <div style="display:flex;gap:0.5rem;">
+          <button type="submit" class="btn btn-revise">Send Back</button>
+          <button type="button"
+                  onclick="document.getElementById('revise-{{ task.id }}').classList.add('hidden')"
+                  class="btn btn-ghost">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

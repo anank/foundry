@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Graveyard — Foundry{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;" class="animate-in">
+  <div>
+    <div class="section-label" style="margin-bottom:0.4rem;">Killed Ideas</div>
+    <h1 class="page-title">Graveyard</h1>
+    <p style="font-size:0.8rem;color:#4a5568;margin-top:0.3rem;">Every kill is a win. {{ entries|length }} buried.</p>
+  </div>
+</div>
+
+<form method="get" action="/graveyard" style="margin-bottom:1.5rem;" class="animate-in animate-in-delay-1">
+  <div style="position:relative;max-width:400px;">
+    <svg style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#4a5568;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+    </svg>
+    <input type="search" name="q" value="{{ q }}" placeholder="Search the graveyard…"
+      class="input input-mono" style="padding-left:2.25rem;" />
+  </div>
+</form>
+
+{% if not entries %}
+<div class="empty-state animate-in animate-in-delay-2">
+  <p>{% if q %}No entries matching "{{ q }}"{% else %}Nothing killed yet.{% endif %}</p>
+</div>
+{% else %}
+<div style="display:flex;flex-direction:column;gap:0.5rem;">
+  {% for e in entries %}
+  <div class="card animate-in animate-in-delay-{{ loop.index if loop.index <= 4 else 4 }}"
+       style="padding:1rem 1.25rem;display:flex;align-items:flex-start;gap:1rem;">
+    <div style="flex-shrink:0;padding-top:0.1rem;">
+      <span class="badge badge--{{ e.verdict | lower }}">{{ e.verdict }}</span>
+    </div>
+    <div style="flex:1;min-width:0;">
+      <p style="font-size:0.85rem;color:#8899aa;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">
+        {{ e.source_text[:240] }}
+      </p>
+      {% if e.revival_condition %}
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#eab308;margin-top:0.4rem;">
+        ↻ {{ e.revival_condition }}
+      </p>
+      {% endif %}
+    </div>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a5568;flex-shrink:0;padding-top:0.1rem;">
+      {{ e.killed_at[:10] }}
+    </span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

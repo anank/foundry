@@ -1,0 +1,24 @@
+<!-- partials/roles_list.html -->
+{% for r in roles %}
+<div style="display:flex;align-items:center;gap:0.75rem;background:#080b0f;border:1px solid #1e2d3d;border-radius:4px;padding:0.5rem 0.875rem;">
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:{% if r.role_name == 'default' %}#f0a500{% else %}#8899aa{% endif %};width:120px;flex-shrink:0;">{{ r.role_name }}</span>
+  <form hx-post="/settings/roles/{{ r.role_name }}/assign"
+        hx-target="#roles-list" hx-swap="innerHTML"
+        style="display:flex;gap:0.5rem;flex:1;align-items:center;">
+    <select name="model_pk" class="input" style="flex:1;font-size:0.75rem;padding:0.3rem 0.6rem;">
+      <option value="0">— unassigned —</option>
+      {% for m in models %}
+      <option value="{{ m.id }}" {% if r.model_id == m.id %}selected{% endif %}>
+        {{ m.provider_name }} / {{ m.model_id }}
+      </option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-ghost" style="font-size:0.65rem;padding:0.3rem 0.7rem;flex-shrink:0;">Save</button>
+  </form>
+  {% if r.model_id %}
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#22c55e;flex-shrink:0;">✓</span>
+  {% else %}
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a5568;flex-shrink:0;">—</span>
+  {% endif %}
+</div>
+{% endfor %}

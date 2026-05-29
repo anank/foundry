@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Foundry — Home{% endblock %}
+{% block content %}
+
+<!-- Page header -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;" class="animate-in">
+  <div>
+    <div class="section-label" style="margin-bottom:0.4rem;">Mission Control</div>
+    <h1 class="page-title">Active Projects</h1>
+  </div>
+  <a href="/projects/new" class="btn btn-primary">+ New Project</a>
+</div>
+
+<!-- Quick-add widget -->
+<div class="card animate-in animate-in-delay-1" style="padding:1.25rem;margin-bottom:2rem;">
+  <div class="section-label" style="margin-bottom:0.875rem;">Quick-add task</div>
+  <form hx-post="/tasks/quick-add" hx-target="#cards-grid" hx-swap="beforeend"
+        style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:flex-end;">
+    <input name="title" required placeholder="Task title…"
+      class="input" style="flex:1;min-width:200px;" />
+    <select name="project_id" required class="input" style="width:180px;">
+      <option value="">Project…</option>
+      {% for p in all_projects %}
+      <option value="{{ p.id }}">{{ p.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Add Task</button>
+  </form>
+</div>
+
+<!-- Cards grid -->
+{% if not cards %}
+<div class="empty-state animate-in animate-in-delay-2">
+  <svg width="40" height="40" fill="none" stroke="#1e2d3d" viewBox="0 0 24 24" style="margin-bottom:1rem;">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+  </svg>
+  <p style="color:#8899aa;">No projects yet.</p>
+  <p><a href="/projects/new" style="color:#f0a500;text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:0.75rem;">create your first project →</a></p>
+</div>
+{% else %}
+<div id="cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;">
+  {% for card in cards %}
+  {% include "partials/project_card.html" %}
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

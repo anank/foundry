@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Devices — Foundry{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;" class="animate-in">
+  <div>
+    <div class="section-label" style="margin-bottom:0.4rem;">Infrastructure</div>
+    <h1 class="page-title">Devices</h1>
+  </div>
+  <a href="/devices/new" class="btn btn-primary">+ Add Device</a>
+</div>
+
+{% if not devices %}
+<div class="empty-state animate-in">
+  <svg width="40" height="40" fill="none" stroke="#1e2d3d" viewBox="0 0 24 24" style="margin-bottom:1rem;">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+  </svg>
+  <p>No devices configured.</p>
+  <p style="font-size:0.75rem;color:#4a5568;margin-top:0.25rem;">Set <code style="font-family:'IBM Plex Mono',monospace;color:#f0a500;">FOUNDRY_DEVICE_ID</code> on each machine.</p>
+  <a href="/devices/new" style="color:#f0a500;text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:0.75rem;margin-top:0.75rem;display:inline-block;">add first device →</a>
+</div>
+{% else %}
+<div style="display:flex;flex-direction:column;gap:0.5rem;">
+  {% for d in devices %}
+  <div class="card animate-in animate-in-delay-{{ loop.index if loop.index <= 4 else 4 }}"
+       style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+        <span style="font-weight:600;font-size:0.9rem;color:#e2e8f0;">{{ d.display_name }}</span>
+        <code style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#f0a500;background:rgba(240,165,0,0.08);border:1px solid rgba(240,165,0,0.2);padding:0.15rem 0.4rem;border-radius:3px;">{{ d.device_id }}</code>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a5568;text-transform:uppercase;letter-spacing:0.06em;">{{ d.os }}</span>
+      </div>
+      {% if d.ssh_host %}
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:#4a5568;margin-top:0.3rem;">
+        {{ d.ssh_user + '@' if d.ssh_user else '' }}{{ d.ssh_host }}:{{ d.ssh_port }}
+      </p>
+      {% else %}
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#2a3f55;margin-top:0.3rem;">local only</p>
+      {% endif %}
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+      <span id="test-{{ d.id }}" style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;"></span>
+      <button hx-post="/devices/{{ d.id }}/test"
+              hx-target="#test-{{ d.id }}" hx-swap="innerHTML"
+              class="btn btn-ghost" style="font-size:0.65rem;padding:0.3rem 0.7rem;">Test</button>
+      <a href="/devices/{{ d.id }}/edit" class="btn btn-ghost" style="font-size:0.65rem;padding:0.3rem 0.7rem;">Edit</a>
+      <form method="post" action="/devices/{{ d.id }}/delete"
+            onsubmit="return confirm('Delete {{ d.display_name }}?')" style="margin:0;">
+        <button type="submit" class="btn btn-danger" style="font-size:0.65rem;padding:0.3rem 0.7rem;">Delete</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

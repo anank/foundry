@@ -1,0 +1,68 @@
+{% if entries %}
+  {% for entry in entries %}
+  <div class="rounded-lg border border-gray-800 bg-gray-900 overflow-hidden">
+
+    <!-- Entry header — always visible -->
+    <div
+      class="flex items-start justify-between gap-4 px-4 py-3 cursor-pointer hover:bg-gray-800 transition-colors"
+      hx-get="/graveyard/{{ entry.id }}/detail"
+      hx-target="#graveyard-detail-{{ entry.id }}"
+      hx-swap="innerHTML toggle"
+      hx-indicator="#graveyard-spinner-{{ entry.id }}"
+      aria-expanded="false"
+      role="button"
+    >
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- Verdict badge -->
+          {% if entry.verdict == "KILL" %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-red-900 text-red-300">KILL</span>
+          {% elif entry.verdict == "PARK" %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-yellow-900 text-yellow-300">PARK</span>
+          {% else %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-700 text-gray-300">{{ entry.verdict }}</span>
+          {% endif %}
+
+          <h3 class="text-sm font-medium text-gray-100 truncate">{{ entry.title }}</h3>
+        </div>
+
+        <p class="mt-1 text-xs text-gray-400 line-clamp-2">{{ entry.reasoning_snippet }}{% if entry.reasoning|length > 200 %}…{% endif %}</p>
+      </div>
+
+      <div class="flex items-center gap-3 shrink-0">
+        {% if entry.killed_date %}
+          <span class="text-xs text-gray-600 whitespace-nowrap">{{ entry.killed_date }}</span>
+        {% endif %}
+        <svg id="graveyard-spinner-{{ entry.id }}" class="htmx-indicator animate-spin w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <svg class="w-4 h-4 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Expandable detail area (toggled by HTMX) -->
+    <div id="graveyard-detail-{{ entry.id }}" class="border-t border-gray-800 empty:hidden">
+      <!-- Populated by hx-get on click -->
+    </div>
+
+  </div>
+  {% endfor %}
+
+{% else %}
+  <!-- Empty state -->
+  <div class="flex flex-col items-center justify-center py-20 text-center">
+    <svg class="w-12 h-12 text-gray-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+    </svg>
+    {% if q %}
+      <p class="text-gray-500 text-sm">No results for "<span class="text-gray-300">{{ q }}</span>".</p>
+    {% else %}
+      <p class="text-gray-500 text-sm">Graveyard is empty.</p>
+      <p class="text-gray-600 text-xs mt-1">Run triage on some ideas to fill it up.</p>
+    {% endif %}
+  </div>
+{% endif %}

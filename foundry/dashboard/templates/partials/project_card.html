@@ -1,0 +1,100 @@
+<!-- partials/project_card.html -->
+{% set status = card.project.status | lower %}
+<div class="card card--{{ status }} animate-in" style="padding:1.25rem;display:flex;flex-direction:column;gap:0.875rem;">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;">
+    <div style="min-width:0;">
+      <a href="/projects/{{ card.project.name }}"
+         style="font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:0.95rem;color:#e2e8f0;text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+         onmouseover="this.style.color='#f0a500'" onmouseout="this.style.color='#e2e8f0'">
+        {{ card.project.name }}
+      </a>
+      {% if card.project.description %}
+      <p style="font-size:0.75rem;color:#4a5568;margin-top:0.2rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+        {{ card.project.description }}
+      </p>
+      {% endif %}
+    </div>
+    <span class="badge badge--{{ status }}" style="flex-shrink:0;">{{ status }}</span>
+  </div>
+
+  <!-- Next task -->
+  {% if card.next_task %}
+  <div style="background:#080b0f;border:1px solid #1e2d3d;border-radius:4px;padding:0.875rem;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#4a5568;margin-bottom:0.4rem;">
+      Next task
+    </div>
+    <p style="font-size:0.85rem;font-weight:500;color:#e2e8f0;line-height:1.4;">{{ card.next_task.title }}</p>
+    {% if card.next_task.description %}
+    <p style="font-size:0.75rem;color:#4a5568;margin-top:0.3rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+      {{ card.next_task.description }}
+    </p>
+    {% endif %}
+
+    <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.75rem;align-items:center;">
+      {% set default_id = card.project.default_device_id %}
+      {% if default_id %}
+        <!-- Default device first as primary button -->
+        {% for d in card.devices %}
+        {% if d.device_pk == default_id %}
+        <button
+          hx-post="/tasks/{{ card.next_task.id }}/run/{{ d.device_pk }}"
+          hx-target="#run-result-{{ card.next_task.id }}"
+          hx-swap="innerHTML"
+          hx-indicator="#run-spinner-{{ card.next_task.id }}"
+          hx-disabled-elt="this"
+          class="btn btn-primary" style="font-size:0.7rem;padding:0.35rem 0.8rem;">
+          ▶ Run on {{ d.display_name }}
+        </button>
+        {% endif %}
+        {% endfor %}
+        <!-- Other devices as secondary -->
+        {% for d in card.devices %}
+        {% if d.device_pk != default_id %}
+        <button
+          hx-post="/tasks/{{ card.next_task.id }}/run/{{ d.device_pk }}"
+          hx-target="#run-result-{{ card.next_task.id }}"
+          hx-swap="innerHTML"
+          hx-indicator="#run-spinner-{{ card.next_task.id }}"
+          hx-disabled-elt="this"
+          class="btn btn-run">
+          ▶ {{ d.display_name }}
+        </button>
+        {% endif %}
+        {% endfor %}
+      {% elif card.devices %}
+        {% for d in card.devices %}
+        <button
+          hx-post="/tasks/{{ card.next_task.id }}/run/{{ d.device_pk }}"
+          hx-target="#run-result-{{ card.next_task.id }}"
+          hx-swap="innerHTML"
+          hx-indicator="#run-spinner-{{ card.next_task.id }}"
+          hx-disabled-elt="this"
+          class="btn btn-run">
+          ▶ {{ d.display_name }}
+        </button>
+        {% endfor %}
+      {% else %}
+      <p style="font-size:0.7rem;color:#4a5568;font-family:'IBM Plex Mono',monospace;">no devices configured</p>
+      {% endif %}
+      <span id="run-spinner-{{ card.next_task.id }}" class="htmx-indicator"
+            style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:#f0a500;">
+        launching…
+      </span>
+    </div>
+    <div id="run-result-{{ card.next_task.id }}" style="margin-top:0.5rem;"></div>
+  </div>
+  {% else %}
+  <div style="background:#080b0f;border:1px dashed #1e2d3d;border-radius:4px;padding:0.75rem;text-align:center;">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#4a5568;">no queued tasks</span>
+  </div>
+  {% endif %}
+
+  <!-- Footer link -->
+  <a href="/projects/{{ card.project.name }}"
+     style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:#4a5568;text-decoration:none;text-align:right;"
+     onmouseover="this.style.color='#f0a500'" onmouseout="this.style.color='#4a5568'">
+    view project →
+  </a>
+</div>

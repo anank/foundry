@@ -1,0 +1,35 @@
+<!-- partials/task_list.html -->
+<div id="task-list">
+{% if not tasks %}
+<div style="background:#080b0f;border:1px dashed #1e2d3d;border-radius:4px;padding:1.5rem;text-align:center;">
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:#4a5568;">no tasks yet</span>
+</div>
+{% else %}
+<div style="display:flex;flex-direction:column;gap:0.4rem;">
+  {% for t in tasks %}
+  {% set status = t.status | lower %}
+  <div style="display:flex;align-items:center;gap:0.75rem;background:#080b0f;border:1px solid #1e2d3d;border-left:3px solid
+    {% if status == 'running' %}#3b82f6
+    {% elif status == 'review' %}#a855f7
+    {% elif status == 'approved' %}#22c55e
+    {% elif status == 'rejected' %}#ef4444
+    {% else %}#1e2d3d{% endif %};
+    border-radius:4px;padding:0.6rem 0.875rem;">
+    <span class="badge badge--{{ status }}" style="flex-shrink:0;">{{ status }}</span>
+    <span style="flex:1;font-size:0.85rem;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ t.title }}</span>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;
+      {% if t.priority == 'high' %}color:#ef4444;
+      {% elif t.priority == 'medium' %}color:#eab308;
+      {% else %}color:#4a5568;{% endif %}
+      flex-shrink:0;text-transform:uppercase;letter-spacing:0.06em;">{{ t.priority }}</span>
+    <button
+      hx-post="/tasks/{{ t.id }}/delete"
+      hx-target="#task-list" hx-swap="outerHTML"
+      hx-confirm="Delete this task?"
+      style="background:none;border:none;cursor:pointer;color:#4a5568;font-size:0.8rem;padding:0.1rem 0.3rem;flex-shrink:0;transition:color 0.15s;"
+      onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#4a5568'">✕</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+</div>

@@ -1,0 +1,17 @@
+<!-- partials/models_list.html -->
+{% for m in models %}
+<div style="display:flex;align-items:center;gap:0.75rem;background:#080b0f;border:1px solid #1e2d3d;border-radius:4px;padding:0.6rem 0.875rem;">
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a5568;width:100px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ m.provider_name }}</span>
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:#f0a500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ m.model_id }}</span>
+  {% if m.display_name and m.display_name != m.model_id %}
+  <span style="font-size:0.75rem;color:#8899aa;flex-shrink:0;">{{ m.display_name }}</span>
+  {% endif %}
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#2a3f55;flex-shrink:0;">{{ '{:,}'.format(m.context_window) }}ctx</span>
+  <button hx-post="/settings/models/{{ m.id }}/delete"
+          hx-target="#models-list" hx-swap="innerHTML"
+          hx-confirm="Delete model {{ m.model_id }}?"
+          class="btn btn-danger" style="font-size:0.65rem;padding:0.25rem 0.6rem;">✕</button>
+</div>
+{% else %}
+<p style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:#4a5568;padding:0.5rem 0;">No models configured.</p>
+{% endfor %}

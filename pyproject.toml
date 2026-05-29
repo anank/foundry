@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "foundry"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "litellm==1.40.10",
+    "pydantic==2.7.1",
+    "pydantic-settings==2.3.1",
+    "python-dotenv==1.0.1",
+    "pyyaml==6.0.1",
+    "anthropic==0.28.0",
+    "fastapi==0.111.0",
+    "uvicorn==0.29.0",
+    "jinja2==3.1.4",
+    "python-multipart==0.0.9",
+    "fastmcp==3.3.1",
+    "webdav4==0.9.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.2.0",
+    "pytest-mock==3.14.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["foundry*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["real: marks tests that call real APIs (deselect with '-m not real')"]

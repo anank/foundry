@@ -1,0 +1,11 @@
+<!-- Replaces a review card after action -->
+<div id="card-{{ task_id }}"
+     style="background:#0d1117;border:1px solid #1e2d3d;border-radius:6px;padding:1rem 1.25rem;
+            display:flex;align-items:center;justify-content:space-between;opacity:0.5;
+            border-left:3px solid {% if 'approved' in action %}#22c55e{% elif 'rejected' in action %}#ef4444{% else %}#eab308{% endif %};">
+  <span style="font-size:0.85rem;color:#8899aa;">
+    Task <span style="font-family:'IBM Plex Mono',monospace;color:#e2e8f0;">#{{ task_id }}</span>
+    — <span class="{{ action_class }}" style="font-weight:600;">{{ action }}</span>
+  </span>
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a5568;text-transform:uppercase;letter-spacing:0.06em;">done</span>
+</div>

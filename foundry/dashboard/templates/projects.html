@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Projects — Foundry{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;" class="animate-in">
+  <div>
+    <div class="section-label" style="margin-bottom:0.4rem;">All Projects</div>
+    <h1 class="page-title">Projects</h1>
+  </div>
+  <a href="/projects/new" class="btn btn-primary">+ New Project</a>
+</div>
+
+{% if not projects %}
+<div class="empty-state animate-in">
+  <p>No projects yet.</p>
+  <p><a href="/projects/new" style="color:#f0a500;text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:0.75rem;">create one →</a></p>
+</div>
+{% else %}
+<div style="display:flex;flex-direction:column;gap:0.5rem;">
+  {% for p in projects %}
+  {% set status = p.status | lower %}
+  <a href="/projects/{{ p.name }}"
+     class="card card--{{ status }} animate-in animate-in-delay-{{ loop.index if loop.index <= 4 else 4 }}"
+     style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;text-decoration:none;">
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.2rem;">
+        <span style="font-weight:600;font-size:0.9rem;color:#e2e8f0;">{{ p.name }}</span>
+        <span class="badge badge--{{ status }}">{{ status }}</span>
+        {% if p.priority == 'high' %}
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#ef4444;letter-spacing:0.06em;text-transform:uppercase;">● high</span>
+        {% endif %}
+      </div>
+      {% if p.description %}
+      <p style="font-size:0.8rem;color:#4a5568;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.description }}</p>
+      {% endif %}
+    </div>
+    <div style="display:flex;align-items:center;gap:1.5rem;flex-shrink:0;">
+      <div style="text-align:right;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:1rem;font-weight:600;color:#8899aa;">{{ p.task_count }}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#4a5568;text-transform:uppercase;letter-spacing:0.08em;">tasks</div>
+      </div>
+      <span style="color:#1e2d3d;font-size:1rem;">→</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

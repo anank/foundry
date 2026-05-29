@@ -1,0 +1,18 @@
+<!-- partials/providers_list.html -->
+{% for p in providers %}
+<div style="display:flex;align-items:center;gap:0.75rem;background:#080b0f;border:1px solid #1e2d3d;border-radius:4px;padding:0.6rem 0.875rem;">
+  <span style="font-weight:500;font-size:0.85rem;color:#e2e8f0;width:140px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p.name }}</span>
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a5568;text-transform:uppercase;letter-spacing:0.06em;width:100px;flex-shrink:0;">{{ p.type }}</span>
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:#f0a500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p.api_key_env_var or '—' }}</span>
+  <span id="test-result-{{ p.id }}" style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;min-width:120px;text-align:right;"></span>
+  <button hx-post="/settings/providers/{{ p.id }}/test"
+          hx-target="#test-result-{{ p.id }}" hx-swap="innerHTML"
+          class="btn btn-ghost" style="font-size:0.65rem;padding:0.25rem 0.6rem;">Test</button>
+  <button hx-post="/settings/providers/{{ p.id }}/delete"
+          hx-target="#providers-list" hx-swap="innerHTML"
+          hx-confirm="Delete provider {{ p.name }}?"
+          class="btn btn-danger" style="font-size:0.65rem;padding:0.25rem 0.6rem;">✕</button>
+</div>
+{% else %}
+<p style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:#4a5568;padding:0.5rem 0;">No providers configured.</p>
+{% endfor %}

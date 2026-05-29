@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Brain Dump — Foundry{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+  <h1 class="text-2xl font-semibold text-white mb-1">Brain Dump</h1>
+  <p class="text-sm text-gray-400 mb-6">Get it out of your head. The Foundry will decide if it's worth building.</p>
+
+  <!-- Confirmation banner target (empty until HTMX swaps in) -->
+  <div id="confirmation-banner" class="mb-4"></div>
+
+  <form
+    id="brain-dump-form"
+    hx-post="/brain-dump"
+    hx-target="#confirmation-banner"
+    hx-swap="innerHTML"
+    hx-on::after-request="if(event.detail.successful){ this.reset(); document.getElementById('project-field').classList.add('hidden'); }"
+    class="space-y-5"
+  >
+
+    <!-- Content textarea -->
+    <div>
+      <label for="content" class="block text-sm font-medium text-gray-300 mb-1">
+        What's on your mind?
+      </label>
+      <textarea
+        id="content"
+        name="content"
+        rows="8"
+        autofocus
+        required
+        placeholder="Describe the idea, feature, bug, or task..."
+        class="w-full rounded-md bg-gray-900 border border-gray-700 text-gray-100 placeholder-gray-600
+               px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+               resize-y"
+      ></textarea>
+    </div>
+
+    <!-- Type select -->
+    <div>
+      <label for="type" class="block text-sm font-medium text-gray-300 mb-1">Type</label>
+      <select
+        id="type"
+        name="type"
+        hx-get="/brain-dump/project-field"
+        hx-target="#project-field"
+        hx-swap="outerHTML"
+        hx-trigger="change"
+        hx-include="[name='type']"
+        class="w-full rounded-md bg-gray-900 border border-gray-700 text-gray-100
+               px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        onchange="toggleProjectField(this.value)"
+      >
+        <option value="idea">Idea</option>
+        <option value="feature">Feature</option>
+        <option value="bug">Bug</option>
+        <option value="task">Task</option>
+      </select>
+    </div>
+
+    <!-- Project field (conditionally visible) -->
+    <div id="project-field" class="hidden">
+      <label for="project" class="block text-sm font-medium text-gray-300 mb-1">
+        Project <span class="text-gray-500 font-normal">(optional)</span>
+      </label>
+      <input
+        id="project"
+        name="project"
+        type="text"
+        placeholder="e.g. pipnesiatest-ea"
+        class="w-full rounded-md bg-gray-900 border border-gray-700 text-gray-100 placeholder-gray-600
+               px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+      />
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex flex-col sm:flex-row gap-3 pt-1">
+      <button
+        type="submit"
+        formaction="/brain-dump?triage=1"
+        hx-post="/brain-dump?triage=1"
+        hx-target="#confirmation-banner"
+        hx-swap="innerHTML"
+        hx-include="#brain-dump-form"
+        hx-on::after-request="if(event.detail.successful){ document.getElementById('brain-dump-form').reset(); document.getElementById('project-field').classList.add('hidden'); }"
+        class="flex-1 rounded-md bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700
+               text-white text-sm font-medium px-4 py-2.5 transition-colors
+               focus:outline-none focus:ring-2 focus:ring-indigo-400"
+      >
+        Triage Now
+      </button>
+      <button
+        type="submit"
+        class="flex-1 rounded-md bg-gray-700 hover:bg-gray-600 active:bg-gray-800
+               text-gray-100 text-sm font-medium px-4 py-2.5 transition-colors
+               focus:outline-none focus:ring-2 focus:ring-gray-500"
+      >
+        Save for Later
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  function toggleProjectField(type) {
+    const field = document.getElementById('project-field');
+    if (type === 'feature' || type === 'bug') {
+      field.classList.remove('hidden');
+    } else {
+      field.classList.add('hidden');
+    }
+  }
+</script>
+{% endblock %}

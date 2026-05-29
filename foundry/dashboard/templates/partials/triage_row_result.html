@@ -1,0 +1,29 @@
+<tr id="triage-row-{{ entry_id }}" class="{% if result.status == 'killed' %}bg-red-950{% elif result.status == 'parked' %}bg-yellow-950{% elif result.status == 'advanced' %}bg-green-950{% elif result.status == 'error' %}bg-gray-900{% else %}bg-gray-900{% endif %} opacity-90">
+  <td class="px-4 py-3 text-gray-400 whitespace-nowrap font-mono text-xs">{{ entry_id }}</td>
+  <td class="px-4 py-3">
+    {% if result.status == 'killed' %}
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-900 text-red-300">KILL</span>
+    {% elif result.status == 'parked' %}
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-900 text-yellow-300">PARK</span>
+    {% elif result.status == 'advanced' %}
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-900 text-green-300">ADVANCE</span>
+    {% elif result.status == 'needs_input' %}
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-900 text-blue-300">NEEDS INPUT</span>
+    {% else %}
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-800 text-gray-400">ERROR</span>
+    {% endif %}
+  </td>
+  <td class="px-4 py-3 text-gray-400 text-xs">{{ result.verdict or "—" }}</td>
+  <td class="px-4 py-3 text-gray-300 text-xs">
+    {% if result.status == 'error' %}
+      <span class="text-red-400">{{ result.message }}</span>
+    {% elif result.tasks %}
+      {{ result.tasks | join(", ") }}
+    {% else %}
+      {{ result.message or "—" }}
+    {% endif %}
+  </td>
+  <td class="px-4 py-3 text-right">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium bg-gray-800 text-gray-400">Done</span>
+  </td>
+</tr>

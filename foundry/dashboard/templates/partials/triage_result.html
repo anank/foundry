@@ -1,0 +1,75 @@
+<!-- partials/triage_result.html -->
+{% if result.status == 'error' %}
+<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:6px;padding:1.25rem;">
+  <p style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:#ef4444;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.08em;">Error</p>
+  <p style="font-size:0.85rem;color:#fca5a5;">{{ result.message }}</p>
+</div>
+{% else %}
+<div style="background:#0d1117;border:1px solid #1e2d3d;border-radius:6px;overflow:hidden;">
+
+  <!-- Verdict header -->
+  <div style="padding:1.25rem 1.5rem;border-bottom:1px solid #1e2d3d;display:flex;align-items:center;gap:1.25rem;
+    background:{% if result.verdict == 'KILL' %}rgba(239,68,68,0.06){% elif result.verdict == 'PARK' %}rgba(234,179,8,0.06){% elif result.verdict == 'ADVANCE' %}rgba(34,197,94,0.06){% else %}transparent{% endif %};">
+    {% if result.verdict == 'KILL' %}
+    <span class="verdict-kill">KILL</span>
+    {% elif result.verdict == 'PARK' %}
+    <span class="verdict-park">PARK</span>
+    {% elif result.verdict == 'ADVANCE' %}
+    <span class="verdict-advance">ADVANCE</span>
+    {% else %}
+    <span style="font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:1rem;color:#8899aa;letter-spacing:0.1em;">{{ result.status | upper }}</span>
+    {% endif %}
+    {% if result.verdict_reasoning %}
+    <p style="font-size:0.85rem;color:#8899aa;flex:1;line-height:1.5;">{{ result.verdict_reasoning }}</p>
+    {% elif result.message %}
+    <p style="font-size:0.85rem;color:#8899aa;flex:1;line-height:1.5;">{{ result.message }}</p>
+    {% endif %}
+  </div>
+
+  <!-- Checks -->
+  {% if result.checks %}
+  <div style="padding:1rem 1.5rem;border-bottom:1px solid #1e2d3d;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#4a5568;margin-bottom:0.75rem;">Checks</div>
+    <div style="display:flex;flex-direction:column;gap:0.5rem;">
+      {% for name, check in result.checks.items() %}
+      <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.8rem;flex-shrink:0;margin-top:0.05rem;
+          {% if check.pass %}color:#22c55e;{% else %}color:#ef4444;{% endif %}">
+          {% if check.pass %}✓{% else %}✗{% endif %}
+        </span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#4a5568;width:140px;flex-shrink:0;padding-top:0.05rem;">{{ name }}</span>
+        <span style="font-size:0.8rem;color:#8899aa;line-height:1.4;">{{ check.reasoning }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Actions -->
+  <div style="padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+    {% if result.verdict in ('KILL', 'PARK') %}
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#4a5568;">
+      Saved to graveyard.
+      <a href="/graveyard" style="color:#f0a500;text-decoration:none;">view →</a>
+    </span>
+    {% endif %}
+    {% if result.verdict == 'ADVANCE' and result.tasks %}
+    <div>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a5568;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem;">Tasks generated</p>
+      {% for t in result.tasks %}
+      <p style="font-size:0.8rem;color:#22c55e;">· {{ t }}</p>
+      {% endfor %}
+      <a href="/projects/new"
+         style="display:inline-block;margin-top:0.75rem;font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#f0a500;text-decoration:none;text-transform:uppercase;letter-spacing:0.06em;">
+        convert to project →
+      </a>
+    </div>
+    {% endif %}
+    {% if result.get('park_revival_condition') if result is mapping else result.park_revival_condition is defined %}
+    {% if result.park_revival_condition %}
+    <p style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#eab308;">↻ {{ result.park_revival_condition }}</p>
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endif %}
